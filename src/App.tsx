@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { FluentProvider, webDarkTheme, Text } from '@fluentui/react-components';
 import { nodes as rawNodes, edges as rawEdges, roles } from './data/tenantData';
 import { remediatedNodes, remediatedEdges } from './data/remediatedState';
@@ -14,11 +14,11 @@ import MobileView from './components/MobileView';
 
 function useWindowWidth() {
   const [width, setWidth] = useState(() => window.innerWidth);
-  useState(() => {
+  useEffect(() => {
     const handler = () => setWidth(window.innerWidth);
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
-  });
+  }, []);
   return width;
 }
 
@@ -259,7 +259,7 @@ export default function App() {
                 flexShrink: 0,
               }}
             >
-              <Text style={{ fontSize: 9, color: '#1E293B' }}>
+              <Text style={{ fontSize: 9, color: '#475569' }}>
                 Gesimuleerde tenant · Microsoft Graph API-schema · Fase 2: live Graph-integratie
               </Text>
             </div>
