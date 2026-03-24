@@ -6,20 +6,32 @@ An interactive web app that visualizes the "blast radius" of Microsoft 365 Copil
 
 **This is a career fair demo for the Microsoft Belgium booth at Evolv Expo (March 26, 2026).** It must be visually striking, immediately understandable in under 60 seconds, and demonstrate both product management thinking and technical execution.
 
-**Expo is March 26. Today is March 23. That is 3 days, not 5. Plan accordingly.**
+**Expo is March 26.**
 
 ---
 
-## Current Status (as of March 23, 2026)
+## Current Status (as of March 24, 2026)
 
 - ✅ CLAUDE.md spec written and updated
 - ✅ GitHub repo created: https://github.com/Skappy-Yolo/copilot-blast-radius
 - ✅ Azure Static Web Apps resource created, GitHub Actions deployment pipeline set up
-- ❌ No code written yet — start from scratch
-- ❌ No npm scaffold yet
-- ❌ No data files yet
+- ✅ React + TypeScript + Vite scaffold complete
+- ✅ Fluent UI v9 (webDarkTheme) + D3.js v7 integrated
+- ✅ Hardcoded Flemish government tenant data: 92 nodes (16 users, 15 groups, 9 sites, 9 libraries, 43 documents), 110+ edges
+- ✅ `graphTransformer.ts` — BFS blast radius traversal working
+- ✅ `anomalyDetector.ts` — 5 detection rules, all naming specific Microsoft products
+- ✅ `BlastGraph.tsx` — D3 force graph with 3-wave blast animation
+- ✅ `AnomalyPanel.tsx` — severity cards with permission paths and recommendations
+- ✅ `StatsBar.tsx` — file count, anomaly count, EEEU sites, risk score gauge
+- ✅ `RoleSelector.tsx` — 5 Flemish government roles
+- ✅ `BeforeAfterToggle.tsx` — switches between current and remediated graph state
+- ✅ `MobileView.tsx` — fallback for <768px screens
+- ✅ `remediatedState.ts` — pre-computed "after fix" graph
+- ✅ TypeScript strict mode: zero compile errors
+- ✅ Build passes (`npm run build`)
+- 🔄 Azure Static Web Apps deployment: PR to main needed to trigger first deploy
 
-**Start here:** scaffold the React project, build with hardcoded data (see Decision Log DD-01).
+**Next:** Merge to main → verify Azure deployment → polish animation timing → test offline on expo laptop.
 
 ---
 
@@ -61,9 +73,9 @@ CSAM (Customer Success Account Manager) owns post-sale adoption. Copilot governa
 ### DD-03 | Timeline: 3-day build, not 5-day
 **Date:** 2026-03-23
 **Revised build plan:**
-- Day 1 (March 23): Scaffold + hardcoded data + D3 graph rendering (nodes visible, no animation yet)
-- Day 2 (March 24): Blast animation + anomaly panel + stats bar + role selector
-- Day 3 (March 25): Before/After toggle + mobile fallback + polish + deploy + test offline
+- Day 1 (March 23): ✅ Scaffold + hardcoded data + D3 graph rendering + all components built
+- Day 2 (March 24): ✅ Bug fixes + graph density (57→92 nodes) + data model corrections + code review
+- Day 3 (March 25): Deploy to Azure via merge to main + polish animation timing + test offline on expo laptop
 - March 26: Expo. Demo works or it doesn't. No coding on expo day.
 
 ---
