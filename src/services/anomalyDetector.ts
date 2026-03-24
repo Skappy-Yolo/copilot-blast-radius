@@ -54,8 +54,9 @@ export function detectAnomalies(
     }
   }
 
-  // ── RULE 2: Nested group inheritance exposure (3+ levels deep) ─────────────
-  // User reaches sensitive resource via 3+ levels of nested group membership
+  // ── RULE 2: Nested group inheritance exposure ──────────────────────────────
+  // User's reachable graph includes multiple nested group hops, meaning
+  // sensitive resources are accessible via indirect group inheritance chains.
   const nestedGroupEdges = reachableEdges.filter((e) => e.type === 'nested_group');
   if (nestedGroupEdges.length >= 2) {
     // Find sensitive resources reached through the nested chain
@@ -72,8 +73,8 @@ export function detectAnomalies(
           id: `anomaly-nested-${node.id}`,
           severity: 'High',
           title: `Gevoelige toegang via geneste groepsinheritance`,
-          description: `Toegang tot "${node.label}" (${node.sensitivityLabel}) is verkregen via een keten van geneste beveiligingsgroepen. Dit is een veelvoorkomende misconfiguratie bij fusies van organisatie-eenheden en is moeilijk te detecteren zonder tooling.`,
-          path: [userId, '...geneste groepen...', node.id],
+          description: `Toegang tot "${node.label}" (${node.sensitivityLabel}) is verkregen via een keten van geneste beveiligingsgroepen (${nestedGroupEdges.length} geneste groepslinks gevonden in het toegangspad). Dit is een veelvoorkomende misconfiguratie bij fusies van organisatie-eenheden en is moeilijk te detecteren zonder tooling.`,
+          path: [userId, ...nestedGroupEdges.map(e => typeof e.source === 'string' ? e.source : (e.source as GraphNode).id), node.id],
           recommendation: `Voer een toegangsoverzicht uit via Microsoft Entra ID Governance om overbodige geneste groepsrelaties te identificeren en te verwijderen. Overweeg Conditional Access-beleid voor toegang tot Confidential-gelabelde SharePoint-sites.`,
           microsoftTool: 'Microsoft Entra ID Governance + Microsoft Purview DLP',
         });
