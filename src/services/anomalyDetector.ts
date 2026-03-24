@@ -78,7 +78,7 @@ export function detectAnomalies(
           recommendation: `Voer een toegangsoverzicht uit via Microsoft Entra ID Governance om overbodige geneste groepsrelaties te identificeren en te verwijderen. Overweeg Conditional Access-beleid voor toegang tot Confidential-gelabelde SharePoint-sites.`,
           microsoftTool: 'Microsoft Entra ID Governance + Microsoft Purview DLP',
         });
-        break; // One nested anomaly per user is enough for the demo
+        break; // One nested anomaly per user
       }
     }
   }
