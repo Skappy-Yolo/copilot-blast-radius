@@ -37,6 +37,7 @@ export default function App() {
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [isRemediated, setIsRemediated] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [acknowledgedIds, setAcknowledgedIds] = useState<Set<string>>(new Set());
 
   // Choose active graph data based on remediation toggle
   const activeNodes: GraphNode[] = isRemediated ? remediatedNodes : rawNodes;
@@ -86,9 +87,40 @@ export default function App() {
 
   const handleRoleSelect = useCallback((roleId: string | null) => {
     setSelectedRoleId(roleId);
+    setAcknowledgedIds(new Set()); // Reset acknowledgements when role changes
     if (roleId) {
       setIsAnimating(true);
     }
+  }, []);
+
+  const handleDismiss = useCallback((anomalyId: string) => {
+    setAcknowledgedIds((prev) => {
+      const next = new Set(prev);
+      const dismissKey = anomalyId + ':dismissed';
+      const intentionalKey = anomalyId + ':intentional';
+      if (next.has(dismissKey)) {
+        next.delete(dismissKey);
+      } else {
+        next.delete(intentionalKey);
+        next.add(dismissKey);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleMarkIntentional = useCallback((anomalyId: string) => {
+    setAcknowledgedIds((prev) => {
+      const next = new Set(prev);
+      const dismissKey = anomalyId + ':dismissed';
+      const intentionalKey = anomalyId + ':intentional';
+      if (next.has(intentionalKey)) {
+        next.delete(intentionalKey);
+      } else {
+        next.delete(dismissKey);
+        next.add(intentionalKey);
+      }
+      return next;
+    });
   }, []);
 
   const handleAnimationComplete = useCallback(() => {
@@ -248,6 +280,10 @@ export default function App() {
               <AnomalyPanel
                 anomalies={anomalies}
                 isVisible={!!selectedRoleId}
+                dismissedIds={acknowledgedIds}
+                onDismiss={handleDismiss}
+                onMarkIntentional={handleMarkIntentional}
+                isRemediated={isRemediated}
               />
             </div>
 

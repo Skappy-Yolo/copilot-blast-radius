@@ -359,22 +359,27 @@ export default function BlastGraph({
         height="100%"
         style={{ display: 'block' }}
       />
-      {/* Legend */}
+      {/* Legend — top-left, clear of the toggle */}
       <div
         style={{
           position: 'absolute',
-          bottom: 16,
+          top: 16,
           left: 16,
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,
-          background: 'rgba(15,23,42,0.85)',
-          borderRadius: 6,
-          padding: '8px 12px',
+          gap: 10,
+          background: 'rgba(15,23,42,0.88)',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: 8,
+          padding: '10px 14px',
           fontSize: 11,
           color: '#94A3B8',
+          minWidth: 160,
         }}
       >
+        <span style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          Legenda
+        </span>
         {(
           [
             ['user', 'Gebruiker'],
@@ -384,18 +389,18 @@ export default function BlastGraph({
             ['document', 'Document'],
           ] as [GraphNode['type'], string][]
         ).map(([type, label]) => (
-          <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <svg width={12} height={12}>
-              <circle cx={6} cy={6} r={NODE_RADIUS[type] * 0.7} fill={NODE_COLORS[type]} />
+          <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <svg width={14} height={14} style={{ flexShrink: 0 }}>
+              <circle cx={7} cy={7} r={NODE_RADIUS[type] * 0.75} fill={NODE_COLORS[type]} />
             </svg>
-            {label}
+            <span>{label}</span>
           </div>
         ))}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, color: '#F87171' }}>
-          <svg width={12} height={12}>
-            <circle cx={6} cy={6} r={5} fill="none" stroke={ANOMALY_COLOR} strokeWidth={2} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.06)', color: '#F87171' }}>
+          <svg width={14} height={14} style={{ flexShrink: 0 }}>
+            <circle cx={7} cy={7} r={5} fill="none" stroke={ANOMALY_COLOR} strokeWidth={2} />
           </svg>
-          EEEU-permissie / Anomalie
+          <span>EEEU / Anomalie</span>
         </div>
       </div>
     </div>

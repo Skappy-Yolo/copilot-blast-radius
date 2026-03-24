@@ -6,18 +6,25 @@ import {
   Subtitle2,
   Caption1,
   Divider,
+  Button,
 } from '@fluentui/react-components';
 import {
   ShieldErrorFilled,
   WarningFilled,
   InfoFilled,
   ArrowRightFilled,
+  CheckmarkCircleFilled,
+  DismissCircleFilled,
 } from '@fluentui/react-icons';
 import type { Anomaly } from '../types';
 
 interface AnomalyPanelProps {
   anomalies: Anomaly[];
   isVisible: boolean;
+  dismissedIds: Set<string>;
+  onDismiss: (id: string) => void;
+  onMarkIntentional: (id: string) => void;
+  isRemediated: boolean;
 }
 
 const SEVERITY_CONFIG = {
@@ -104,9 +111,24 @@ function PathChain({ path }: { path: string[] }) {
   );
 }
 
-function AnomalyCard({ anomaly, index }: { anomaly: Anomaly; index: number }) {
+function AnomalyCard({
+  anomaly,
+  index,
+  isDismissed,
+  isIntentional,
+  onDismiss,
+  onMarkIntentional,
+}: {
+  anomaly: Anomaly;
+  index: number;
+  isDismissed: boolean;
+  isIntentional: boolean;
+  onDismiss: (id: string) => void;
+  onMarkIntentional: (id: string) => void;
+}) {
   const config = SEVERITY_CONFIG[anomaly.severity];
   const { Icon } = config;
+  const isAcknowledged = isDismissed || isIntentional;
 
   return (
     <div
@@ -118,32 +140,45 @@ function AnomalyCard({ anomaly, index }: { anomaly: Anomaly; index: number }) {
     >
       <Card
         style={{
-          background: config.bg,
-          border: `1px solid ${config.border}`,
+          background: isAcknowledged ? 'rgba(255,255,255,0.02)' : config.bg,
+          border: `1px solid ${isAcknowledged ? 'rgba(255,255,255,0.06)' : config.border}`,
           marginBottom: 10,
           borderRadius: 8,
           padding: '12px 14px',
+          transition: 'all 0.2s ease',
         }}
       >
         <CardHeader
           image={
-            <Icon
-              style={{ color: config.color, fontSize: 18 }}
-            />
+            isAcknowledged
+              ? <CheckmarkCircleFilled style={{ color: '#475569', fontSize: 18 }} />
+              : <Icon style={{ color: config.color, fontSize: 18 }} />
           }
           header={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <Badge
-                appearance="filled"
-                color={config.badgeColor}
-                size="small"
-                style={{ fontWeight: 700, letterSpacing: '0.03em' }}
-              >
-                {anomaly.severity.toUpperCase()}
-              </Badge>
+              {!isAcknowledged && (
+                <Badge
+                  appearance="filled"
+                  color={config.badgeColor}
+                  size="small"
+                  style={{ fontWeight: 700, letterSpacing: '0.03em' }}
+                >
+                  {anomaly.severity.toUpperCase()}
+                </Badge>
+              )}
+              {isIntentional && (
+                <Badge appearance="tint" color="subtle" size="small">
+                  Intentioneel
+                </Badge>
+              )}
+              {isDismissed && !isIntentional && (
+                <Badge appearance="tint" color="subtle" size="small">
+                  Gesloten
+                </Badge>
+              )}
               <Subtitle2
                 style={{
-                  color: '#F1F5F9',
+                  color: isAcknowledged ? '#475569' : '#F1F5F9',
                   fontSize: 12,
                   lineHeight: 1.3,
                 }}
@@ -153,60 +188,105 @@ function AnomalyCard({ anomaly, index }: { anomaly: Anomaly; index: number }) {
             </div>
           }
         />
-        <Text
-          style={{
-            fontSize: 11,
-            color: '#94A3B8',
-            lineHeight: 1.5,
-            marginTop: 6,
-            display: 'block',
-          }}
-        >
-          {anomaly.description}
-        </Text>
 
-        <PathChain path={anomaly.path} />
+        {!isAcknowledged && (
+          <>
+            <Text
+              style={{
+                fontSize: 11,
+                color: '#94A3B8',
+                lineHeight: 1.5,
+                marginTop: 6,
+                display: 'block',
+              }}
+            >
+              {anomaly.description}
+            </Text>
 
-        <Divider style={{ margin: '8px 0', opacity: 0.2 }} />
+            <PathChain path={anomaly.path} />
 
-        <div>
-          <Caption1 style={{ color: '#64748B', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Aanbeveling
-          </Caption1>
-          <Text
-            style={{
-              fontSize: 11,
-              color: '#CBD5E1',
-              lineHeight: 1.5,
-              marginTop: 3,
-              display: 'block',
-            }}
+            <Divider style={{ margin: '8px 0', opacity: 0.2 }} />
+
+            <div>
+              <Caption1 style={{ color: '#64748B', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Aanbeveling
+              </Caption1>
+              <Text
+                style={{
+                  fontSize: 11,
+                  color: '#CBD5E1',
+                  lineHeight: 1.5,
+                  marginTop: 3,
+                  display: 'block',
+                }}
+              >
+                {anomaly.recommendation}
+              </Text>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  marginTop: 6,
+                  padding: '3px 8px',
+                  background: 'rgba(96,205,255,0.1)',
+                  border: '1px solid rgba(96,205,255,0.2)',
+                  borderRadius: 12,
+                }}
+              >
+                <span style={{ fontSize: 10, color: '#60CDFF', fontWeight: 600 }}>
+                  🛡 {anomaly.microsoftTool}
+                </span>
+              </div>
+            </div>
+
+            {/* Review actions */}
+            <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<CheckmarkCircleFilled style={{ color: '#22C55E' }} />}
+                onClick={() => onMarkIntentional(anomaly.id)}
+                style={{ fontSize: 10, color: '#4ADE80', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 6 }}
+              >
+                Intentioneel
+              </Button>
+              <Button
+                size="small"
+                appearance="subtle"
+                icon={<DismissCircleFilled style={{ color: '#64748B' }} />}
+                onClick={() => onDismiss(anomaly.id)}
+                style={{ fontSize: 10, color: '#64748B', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6 }}
+              >
+                Sluiten
+              </Button>
+            </div>
+          </>
+        )}
+
+        {isAcknowledged && (
+          <Button
+            size="small"
+            appearance="subtle"
+            onClick={() => isDismissed ? onDismiss(anomaly.id) : onMarkIntentional(anomaly.id)}
+            style={{ fontSize: 10, color: '#475569', marginTop: 4 }}
           >
-            {anomaly.recommendation}
-          </Text>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              marginTop: 6,
-              padding: '3px 8px',
-              background: 'rgba(96,205,255,0.1)',
-              border: '1px solid rgba(96,205,255,0.2)',
-              borderRadius: 12,
-            }}
-          >
-            <span style={{ fontSize: 10, color: '#60CDFF', fontWeight: 600 }}>
-              🛡 {anomaly.microsoftTool}
-            </span>
-          </div>
-        </div>
+            Terugdraaien
+          </Button>
+        )}
       </Card>
     </div>
   );
 }
 
-export default function AnomalyPanel({ anomalies, isVisible }: AnomalyPanelProps) {
+export default function AnomalyPanel({
+  anomalies,
+  isVisible,
+  dismissedIds,
+  onDismiss,
+  onMarkIntentional,
+  isRemediated,
+}: AnomalyPanelProps) {
   if (!isVisible) {
     return (
       <div
@@ -259,12 +339,16 @@ export default function AnomalyPanel({ anomalies, isVisible }: AnomalyPanelProps
     return order[a.severity] - order[b.severity];
   });
 
+  const activeCount = sorted.filter((a) => !dismissedIds.has(a.id + ':dismissed') && !dismissedIds.has(a.id + ':intentional')).length;
+
   return (
     <div
       style={{
         overflowY: 'auto',
         height: '100%',
         paddingRight: 2,
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <style>{`
@@ -273,9 +357,37 @@ export default function AnomalyPanel({ anomalies, isVisible }: AnomalyPanelProps
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      {sorted.map((anomaly, i) => (
-        <AnomalyCard key={anomaly.id} anomaly={anomaly} index={i} />
-      ))}
+      <div style={{ flex: 1 }}>
+        {sorted.map((anomaly, i) => (
+          <AnomalyCard
+            key={anomaly.id}
+            anomaly={anomaly}
+            index={i}
+            isDismissed={dismissedIds.has(anomaly.id + ':dismissed')}
+            isIntentional={dismissedIds.has(anomaly.id + ':intentional')}
+            onDismiss={onDismiss}
+            onMarkIntentional={onMarkIntentional}
+          />
+        ))}
+      </div>
+
+      {/* Toggle CTA — only shown in "before" state with active anomalies */}
+      {!isRemediated && activeCount > 0 && (
+        <div
+          style={{
+            margin: '4px 0 8px',
+            padding: '10px 12px',
+            background: 'rgba(34,197,94,0.07)',
+            border: '1px solid rgba(34,197,94,0.2)',
+            borderRadius: 8,
+            flexShrink: 0,
+          }}
+        >
+          <Text style={{ fontSize: 11, color: '#4ADE80', lineHeight: 1.5, display: 'block' }}>
+            ↙ Schakel naar <strong>Na remediatie</strong> (linksonder) om te zien hoe de blast radius krimpt na het toepassen van de aanbevolen fixes.
+          </Text>
+        </div>
+      )}
     </div>
   );
 }
