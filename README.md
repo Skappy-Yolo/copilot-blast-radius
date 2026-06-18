@@ -1,16 +1,16 @@
 # Copilot Blast Radius Simulator
 
-An interactive web app that visualises the data exposure risk introduced when Microsoft 365 Copilot is enabled on an enterprise tenant with misconfigured SharePoint and Azure AD permissions.
+Shows what files Microsoft 365 Copilot can surface for a given user when SharePoint and Azure AD permissions are misconfigured.
 
-Select a user role. The graph animates outward through their group memberships and inherited permissions, showing every file, library, and site that Copilot could surface for that user. An anomaly panel identifies the specific misconfigurations driving the exposure and maps each one to the Microsoft product that remediates it.
+Select a user role. The graph animates outward through their group memberships and inherited permissions, showing every file, library, and site Copilot could surface for that user. An anomaly panel identifies the specific misconfigurations driving the exposure and maps each one to the Microsoft product that remediates it.
 
-**Live:** [Azure Static Web Apps deployment](#) *(link updates after first deployment)*
+**Live:** https://skappy-yolo.github.io/copilot-blast-radius/
 
 ---
 
 ## The Problem
 
-Copilot respects existing M365 permissions — it does not introduce new access. But most enterprise tenants have years of accumulated permission drift: overly broad security groups, deeply nested group inheritance reaching sensitive libraries, and "Everyone except external users" applied to sites containing confidential content. Copilot makes that existing exposure immediately visible to end users in a way that passive file access did not.
+Copilot respects existing M365 permissions. It does not introduce new access. But most enterprise tenants have permission drift built up over years: overly broad security groups, deeply nested group inheritance reaching sensitive libraries, and "Everyone except external users" applied to sites containing confidential content. Passive file access hid that exposure. Copilot surfaces it.
 
 Key figures:
 - Gartner flagged SharePoint oversharing as the #1 Copilot security risk (March 2026)
@@ -22,12 +22,12 @@ Key figures:
 
 ## Features
 
-- **Force-directed network graph** — 92 nodes (users, groups, SharePoint sites, document libraries, documents), 110+ permission edges
-- **Blast animation** — three-wave red edge traversal from selected user, driven by D3 transitions
-- **Anomaly detection** — 5 rules detecting critical misconfigurations with severity scores and permission path traces
-- **Remediation panel** — each anomaly maps to a specific Microsoft product (Purview, SharePoint Advanced Management, Entra ID Governance)
-- **Before/After toggle** — switches between current misconfigured state and post-remediation graph
-- **Mobile fallback** — stats + anomaly list on screens < 768px
+- **Force-directed network graph:** 92 nodes (users, groups, SharePoint sites, document libraries, documents) with 110+ permission edges
+- **Blast animation:** three-wave red edge traversal from the selected user, driven by D3 transitions
+- **Anomaly detection:** 5 rules identifying critical misconfigurations with severity scores and permission path traces
+- **Remediation panel** maps each anomaly to a specific Microsoft product (Purview, SharePoint Advanced Management, Entra ID Governance)
+- **Before/After toggle:** switches between the current misconfigured state and the post-remediation graph
+- **Mobile fallback:** stats and anomaly list on screens narrower than 768px
 
 ---
 
@@ -66,4 +66,4 @@ See [DECISIONS.md](DECISIONS.md) for architectural decisions including why the d
 
 ## Simulated Data
 
-The dataset simulates a Flemish government M365 tenant with deliberate misconfigurations representative of what Microsoft's SharePoint Advanced Management oversharing reports surface in production. The data structure matches the Microsoft Graph API response shape — replacing `src/data/tenantData.ts` with a live Graph client is a drop-in change to the transformation pipeline.
+The dataset simulates a Flemish government M365 tenant with deliberate misconfigurations representative of what Microsoft's SharePoint Advanced Management oversharing reports surface in production. The data structure matches the Microsoft Graph API response shape. Replacing `src/data/tenantData.ts` with a live Graph client is a drop-in change to the transformation pipeline.

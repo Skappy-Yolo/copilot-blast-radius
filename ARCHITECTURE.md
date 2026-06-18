@@ -2,7 +2,7 @@
 
 ## Problem
 
-When Microsoft 365 Copilot is enabled in an enterprise tenant, it queries the Microsoft Graph to surface relevant files and content. Copilot respects existing SharePoint and Azure AD permissions — but most enterprise M365 tenants have years of accumulated permission drift: overly broad security groups, nested group inheritance reaching sensitive libraries, and "Everyone except external users" (EEEU) applied to sites that contain confidential content.
+When Microsoft 365 Copilot is enabled in an enterprise tenant, it queries the Microsoft Graph to surface relevant files and content. Copilot respects existing SharePoint and Azure AD permissions. But most enterprise M365 tenants have years of accumulated permission drift: overly broad security groups, nested group inheritance reaching sensitive libraries, and "Everyone except external users" (EEEU) applied to sites that contain confidential content.
 
 The result: Copilot surfaces documents that employees should never see, not because Copilot is broken, but because the underlying permissions were already broken. This is the leading cause of Copilot adoption stalls in enterprise deployments.
 
@@ -17,11 +17,11 @@ The result: Copilot surfaces documents that employees should never see, not beca
 
 ## What This Tool Does
 
-An interactive web app that visualizes the "blast radius" — the full set of files, sites, and libraries accessible to a given user role via Copilot — for a simulated enterprise M365 tenant.
+An interactive web app that visualises the "blast radius" (the full set of files, sites, and libraries accessible to a given user role via Copilot) for a simulated enterprise M365 tenant.
 
 Select a role. The graph animates outward from that user through their group memberships and inherited permissions, lighting up every resource Copilot could reach. An anomaly panel surfaces the specific misconfigurations driving the exposure, with remediation steps referencing the Microsoft products that fix them.
 
-A Before/After toggle shows the graph state after applying the recommended fixes — the blast radius contracts visibly.
+A Before/After toggle shows the graph state after applying the recommended fixes. The blast radius contracts visibly.
 
 ---
 
@@ -39,7 +39,7 @@ A Before/After toggle shows the graph state after applying the recommended fixes
 
 Pure static frontend. No backend, no API proxy, no authentication layer. All data is pre-loaded at build time. See [Decision Log](DECISIONS.md) for why.
 
-**Phase 2:** `tenantData.ts` is designed to be replaced by a live Microsoft Graph API client (`graphClient.ts` + Azure Functions proxy + MSAL). The transformation pipeline in `graphTransformer.ts` does not change — only the data source.
+**Phase 2:** `tenantData.ts` is designed to be replaced by a live Microsoft Graph API client (`graphClient.ts` + Azure Functions proxy + MSAL). The transformation pipeline in `graphTransformer.ts` does not change. Only the data source does.
 
 ---
 
@@ -192,9 +192,9 @@ This is the function that would be called with live Graph API data in Phase 2.
 
 1. All non-connected nodes/edges fade to 15% opacity
 2. Edges light up red in 3 waves from the selected user:
-   - Wave 1 — direct group memberships: 0.5s
-   - Wave 2 — group → site/library permissions: 0.5s
-   - Wave 3 — inherited/nested access: 0.5s
+   - Wave 1: direct group memberships, 0.5s
+   - Wave 2: group → site/library permissions, 0.5s
+   - Wave 3: inherited/nested access, 0.5s
 3. Each reached node scales up and gets a red border
 4. Force simulation pushes connected nodes outward
 5. Anomaly panel populates with 100ms staggered fade-in per card
@@ -247,4 +247,4 @@ copilot-blast-radius/
 
 ## Competitive Landscape
 
-Similar enterprise tooling exists from Varonis, Opsin, and Bonfy. Those are commercial products targeting security teams. This is an open-source reference implementation that makes the problem visible — oriented toward understanding and education rather than production enforcement.
+Similar enterprise tooling exists from Varonis, Opsin, and Bonfy. Those are commercial products targeting security teams. This is an open-source reference implementation that makes the problem visible, oriented toward understanding and education rather than production enforcement.

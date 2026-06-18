@@ -22,7 +22,7 @@ Architectural decisions that shape the codebase are recorded here.
 
 **Decision:** No `/api` folder. No Azure Functions. Pure static frontend deployed to Azure Static Web Apps.
 
-**Rationale:** DD-01 removes the only reason for a backend — proxying Graph API calls and protecting credentials. Without live API calls there are no credentials to protect. Static hosting is simpler to deploy and reason about, and `staticwebapp.config.json` only needs SPA routing rules (404 → index.html).
+**Rationale:** DD-01 removes the only reason for a backend: proxying Graph API calls and protecting credentials. Without live API calls there are no credentials to protect. Static hosting is simpler to deploy and reason about, and `staticwebapp.config.json` only needs SPA routing rules (404 → index.html).
 
 ---
 
